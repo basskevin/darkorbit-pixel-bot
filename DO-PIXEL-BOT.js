@@ -1,10 +1,22 @@
 // +-------------------------------------------+
 // | User Configuration (feel free to edit it) |
 // +-------------------------------------------+
+var CONFIG_USE_AUTO_LOGIN = true;
+var charnum=0
+var CONFIG_AUTO_LOGIN_USERNAME = "dark.shadow1";
+var CONFIG_AUTO_LOGIN_PASSWORD = "slam6550";
+var shipNumber =1;
+if (charnum===0){
+	CONFIG_AUTO_LOGIN_USERNAME = "dark.shadow1";
+	CONFIG_AUTO_LOGIN_PASSWORD = "slam6550";
+	shipNumber =2;
+}
+if (charnum===1){
+	CONFIG_AUTO_LOGIN_USERNAME = "dont*tread*on*me";
+	CONFIG_AUTO_LOGIN_PASSWORD = "1234Iamcool";
+	shipNumber =1;
+}
 
-var CONFIG_USE_AUTO_LOGIN = false;
-var CONFIG_AUTO_LOGIN_USERNAME = "";
-var CONFIG_AUTO_LOGIN_PASSWORD = "";
 
 var CONFIG_AUTO_RECONNECT = true;
 
@@ -12,7 +24,7 @@ var CONFIG_AUTO_SHIP_REPAIR = true;
 var CONFIG_AUTO_SHIP_REPAIR_LOCATION = "base"; // Possible locations: "stage", "gate", "base"
 var CONFIG_MAX_SHIP_REPAIRS = 20; // The script will stop once they have been reached.
 
-var CONFIG_USE_PET = false;
+var CONFIG_USE_PET = true;
 var CONFIG_MAX_PET_REPAIRS = 20;
 var CONFIG_PET_GEAR_TO_USE = "autolooter"; // Allowed values: "autolooter", "collector", "passivemode", "guardmode"
 var CONFIG_PET_CHECK_TIMEOUT_IN_MS = 5 * 60 * 1000; // minutes * seconds * milliseconds
@@ -758,6 +770,10 @@ Client.prototype.autoLogin = function(username, password) {
 	Helper.sleep(2);
 
 	Browser.finishLoading();
+	Helper.sleep(2)
+	GoToSkyLab();
+	GoToSkyLab();
+	GotoSelectShip(shipNumber)
 	this.getIngame();
 }
 
@@ -1296,6 +1312,92 @@ Scheduler.prototype.runMainAlgorithm = function() {
 // +---------------------------------------------------------------+
 // | Main Method and Algorithm, this uses everything defined above |
 // +---------------------------------------------------------------+
+var SHIPS_DIR = TEMPLATE_DIR + "ships/";
+var SHIPS = [10 ,28 ,45 ,66 ,80 ,100 ,120 ,140 ,160 ]
+var HANGER_TPL = new Image(SHIPS_DIR + "hanger.png");
+function GotoSelectShip(shipNum){
+	screenShot = Browser.takeScreenshot();
+	var location=Vision.findMatch(screenShot, HANGER_TPL, 0.90);
+	Helper.log("the ships number is",shipNum);
+	Helper.sleep(2);
+	var x=location.getRect().getRight();
+	var y = location.getRect().getCenter().getY()
+	clickpnt=new Point(x+24,y)
+	Browser.leftClick(clickpnt)
+	Helper.sleep(2);
+	
+	Browser.moveMouseTo(new Point(40,40));
+	Helper.sleep(1);
+	Browser.leftClick(new Point(x+SHIPS[shipNum-1],y))
+	Helper.sleep(6);
+}
+
+
+var GoToSkyLab = function(){
+	var skyLab_url = Browser.getUrl().getHost() + "/indexInternal.es?action=internalSkylab";
+	Browser.loadUrl(skyLab_url);
+	Browser.finishLoading();
+	return
+}
+
+var MINIMIZI_TPL = new Image(TEMPLATE_DIR + "minimize.png");
+var XBUTTONS_TPL = new Image(TEMPLATE_DIR + "xbtn2.png");
+var X2BUTTONS_TPL = new Image(TEMPLATE_DIR + "exmark.png");
+var minimiseAllWindows = function() {
+	while (true) {
+		var screenshot = Browser.takeScreenshot();
+		var logout_match = Vision.findMatch(screenshot, LOGOUT_BUTTON_TPL, 0.97);
+		if (logout_match.isValid()) {
+			break;
+		}
+	}
+
+	Helper.sleep(5);
+	
+	while (true) {
+		Helper.log("clicked minimise")
+		var screenshot = Browser.takeScreenshot();
+		var minimize_match = Vision.findMatch(screenshot, MINIMIZI_TPL, 0.95);
+		var x_match = Vision.findMatch(screenshot, XBUTTONS_TPL, 0.93);
+		var x2_match = Vision.findMatch(screenshot, X2BUTTONS_TPL, 0.93);
+		if (minimize_match.isValid()||x_match.isValid()) {
+			if(x_match.isValid()){
+				x=x_match.getRect().getRight()-3;
+				y=x_match.getRect().getTop()+3;
+				Browser.leftClick(Point(x,y));
+				Helper.log("minimize button clicked.");
+			}
+			if(x2_match.isValid()){
+				x=x2_match.getRect().getRight()-3;
+				y=x2_match.getRect().getTop()+3;
+				Browser.leftClick(Point(x,y));
+				Helper.log("minimize button clicked.");
+			}
+			if(minimize_match.isValid()){
+				x=minimize_match.getRect().getRight()-3;
+				y=minimize_match.getRect().getTop()+3;
+				Browser.leftClick(Point(x,y));
+				Helper.log("minimize button clicked.");
+			}
+			
+		}else{
+			return;
+		}
+		Helper.sleep(1);
+	}
+}
+PETICON_TPL = new Image(PET_TPL_DIR + "petIcon.png");
+MINIMAPICON_TPL = new Image(MINIMAP_DIR + "minmapShow.png");
+function showPetAndMap(){
+	var screenshot = Browser.takeScreenshot();
+	var petIcon_match = Vision.findMatch(screenshot, PETICON_TPL, 0.95);
+	var mini_MapIcon_match = Vision.findMatch(screenshot, MINIMAPICON_TPL, 0.93);
+	Helper.sleep(1);
+	Browser.leftClick(petIcon_match.getRect().getCenter())
+	Helper.sleep(1);
+	Browser.leftClick(mini_MapIcon_match.getRect().getCenter())
+	Helper.sleep(2);
+}
 
 function main() {
 
@@ -1320,6 +1422,8 @@ function main() {
 		if (CONFIG_USE_AUTO_LOGIN) {
 			Helper.log("Logging in automatically");
 			client.autoLogin(CONFIG_AUTO_LOGIN_USERNAME, CONFIG_AUTO_LOGIN_PASSWORD);
+			
+			
 			Helper.log("Logged in automatically.");
 		} else {
 			Helper.log("### ! ! ! Please login manually and start the game or configure the auto login feature ! ! ! ###");
@@ -1330,7 +1434,7 @@ function main() {
 	else if (CONFIG_COLLECT_LOOT) {
 		// The client is already ingame. Reload to make sure ressource modification works.
 		Helper.log("Reloading to make the loot collector work...");
-
+		
 		Browser.reload();
 		Browser.finishLoading();
 
@@ -1339,7 +1443,8 @@ function main() {
 
 		Helper.log("Loot collector prepared.");
 	}
-
+	minimiseAllWindows()
+	showPetAndMap()
 	// +----------------------+
 	// | Bot components setup |
 	// +----------------------+
