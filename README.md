@@ -25,6 +25,8 @@ Take a look at the features and roadmap section to see what this free and openso
 [x] Automatic PET Gear Selection
 [ ] Automatic Cloak CPU activation
 [x] Automatic Bonus Box collection
+[x] Automatic select ship
+[x] Automatic show only required screans
 [ ] Automatic Pirate Booty collection
 [ ] Automatical flee on low HP
 [ ] Automatic NPC Shooting on lower maps
