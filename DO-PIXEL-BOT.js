@@ -3,9 +3,19 @@
 // +-------------------------------------------+
 var CONFIG_USE_AUTO_LOGIN = true;
 var charnum=0
-var CONFIG_AUTO_LOGIN_USERNAME = "";
-var CONFIG_AUTO_LOGIN_PASSWORD = "";
+var CONFIG_AUTO_LOGIN_USERNAME = "dark.shadow1";
+var CONFIG_AUTO_LOGIN_PASSWORD = "slam6550";
 var shipNumber =1;
+if (charnum===0){
+	CONFIG_AUTO_LOGIN_USERNAME = "dark.shadow1";
+	CONFIG_AUTO_LOGIN_PASSWORD = "slam6550";
+	shipNumber =2;
+}
+if (charnum===1){
+	CONFIG_AUTO_LOGIN_USERNAME = "dont*tread*on*me";
+	CONFIG_AUTO_LOGIN_PASSWORD = "1234Iamcool";
+	shipNumber =1;
+}
 
 
 var CONFIG_AUTO_RECONNECT = true;
@@ -1390,6 +1400,7 @@ function showPetAndMap(){
 }
 
 function main() {
+
 	// +--------------------------+
 	// | Inform and warn the user |
 	// +--------------------------+
